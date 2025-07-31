@@ -47,21 +47,20 @@ namespace IndividualProject.Repository
         {
             var itemsWithRatings = await _DbContext.Items
                 .Include(t => t.Seller)
-                .Select(t => new
+                .Include(t => t.Reviews)
+                .Select(t => new AllitemDto
                 {
-                    t.Id,
-                    t.Name,
-                    t.Description,
-                    t.CoverImage,
-                    t.Price,
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    CoverImage = t.CoverImage,
+                    Price = t.Price,
                     SellerId = t.Seller.Id,
                     SellerName = t.Seller.Name,
-                    //ratings = _DbContext.Reviews
-                    //    .Where(r => r.itemId == t.Id)
-                    //    .Select(r => r.rating)
-                    //    .ToList()
+                    averageRating = t.Reviews.Any() ? t.Reviews.Average(r => r.Rating) : 0
                 })
                 .ToListAsync();
+
 
             var items = itemsWithRatings
                 .Select(t => new AllitemDto { 
@@ -122,5 +121,52 @@ namespace IndividualProject.Repository
             await _DbContext.SaveChangesAsync();
             return item;
         }
+        public async Task<List<AllitemDto>> FilterItems(ItemFilterDto filter)
+        {
+            var query = _DbContext.Items
+                .Include(i => i.Seller)
+                .Include(i => i.Reviews)
+                .Include(i => i.Category) // if using category table
+                .AsQueryable();
+
+            if (filter.CategoryId.HasValue)
+                query = query.Where(i => i.CategoryId == filter.CategoryId);
+
+            if (filter.MinPrice.HasValue)
+                query = query.Where(i => i.Price >= filter.MinPrice.Value);
+
+            if (filter.MaxPrice.HasValue)
+                query = query.Where(i => i.Price <= filter.MaxPrice.Value);
+
+            if (filter.MinRating.HasValue)
+                query = query.Where(i => i.Reviews.Any() && i.Reviews.Average(r => r.Rating) >= filter.MinRating);
+
+            // Sorting logic
+            query = filter.SortBy switch
+            {
+                "TopRated" => query.OrderByDescending(i => i.Reviews.Any() ? i.Reviews.Average(r => r.Rating) : 0),
+                "PriceLowToHigh" => query.OrderBy(i => i.Price),
+                "PriceHighToLow" => query.OrderByDescending(i => i.Price),
+                _ => query.OrderByDescending(i => i.Id) // Newest first
+            };
+
+            var result = await query
+                .Select(i => new AllitemDto
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Description = i.Description,
+                    CoverImage = i.CoverImage,
+                    Price = i.Price,
+                    SellerId = i.Seller.Id,
+                    SellerName = i.Seller.Name,
+                    averageRating = i.Reviews.Any() ? i.Reviews.Average(r => r.Rating) : 0,
+                    CategoryName = i.Category.Name
+                })
+                .ToListAsync();
+
+            return result;
+        }
+
     }
 }

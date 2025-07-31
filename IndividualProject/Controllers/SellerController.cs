@@ -74,12 +74,12 @@ namespace IndividualProject.Controllers
         }
 
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginRequestDto sellerLogin)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto sellerLogin)
         {
             var email = sellerLogin.Email;
             var password = sellerLogin.Password;
 
-            var result = _sellerRepository.LogIn(email, password);
+            var result = await _sellerRepository.LogInAsync(email, password); 
             if (!result)
             {
                 return Unauthorized("Invalid email or password");
@@ -113,6 +113,7 @@ namespace IndividualProject.Controllers
 
             return Ok(new {token = tokenHandler.WriteToken(token), loggedInSeller.Id});
         }
+
         [HttpPut("ProfileUpdate{id}")]
         public async Task<IActionResult> UpdateSeller(int id, [FromBody] UpdateSellerDto updateSellerDto)
         {

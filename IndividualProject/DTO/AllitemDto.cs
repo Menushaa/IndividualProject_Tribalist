@@ -12,5 +12,6 @@ namespace IndividualProject.DTO
         public double averageRating { get; set; } = 0;
         public int SellerId { get; set; }
         public string SellerName { get; set; }
+        public string CategoryName { get; set; }
     }
 }

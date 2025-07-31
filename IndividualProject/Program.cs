@@ -70,9 +70,14 @@ var emailConfig = builder.Configuration
     .Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<IPasswordService, PasswordService>();
 #endregion
 
 builder.Services.AddTransient<ISellerRepository, SellerRepository>();
+builder.Services.AddTransient<IItemRepository, ItemRepository>();
+builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
+builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+
 
 
 builder.Services.AddEndpointsApiExplorer();

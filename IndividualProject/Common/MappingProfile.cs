@@ -14,6 +14,9 @@ namespace IndividualProject.Common
 
             CreateMap<Item, AllitemDto>().ReverseMap();
             CreateMap<Item, CreateItemDto>().ReverseMap();
+
+            CreateMap<Review, CreateReviewDto>().ReverseMap();
+            CreateMap<Review, ReviewDto>().ReverseMap();
         }
     }
 }

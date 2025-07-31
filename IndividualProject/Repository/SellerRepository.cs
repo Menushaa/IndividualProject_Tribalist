@@ -34,32 +34,34 @@ namespace IndividualProject.Repository
             }
         }
 
-        public bool LogIn(string Email, string Password)
+        public async Task<bool> LogInAsync(string email, string password)
         {
             try
             {
-                var seller = _DbContext.Sellers.FirstOrDefault(a => a.Email == Email);
+                // Normalize email to lowercase
+                var normalizedEmail = email.ToLower();
+
+                var seller = await _DbContext.Sellers
+                    .FirstOrDefaultAsync(a => a.Email.ToLower() == normalizedEmail);
+
                 if (seller == null)
                 {
-                    Console.WriteLine("Artist Not Found");
+                    Console.WriteLine("Seller not found");
                     return false;
                 }
 
                 PasswordHash ph = new PasswordHash();
-                bool isValidPassword = ph.VerifyPassword(Password, seller.Password);
+                bool isValidPassword = ph.VerifyPassword(password, seller.Password);
+
                 return isValidPassword;
-            }
-            catch (InvalidCastException ex)
-            {
-                Console.WriteLine($"InvalidCastException: {ex.Message}");
-                throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General exception: {ex.Message}");
-                throw;
+                Console.WriteLine($"Error during login: {ex.Message}");
+                return false;
             }
         }
+
 
         public Seller GetByMail(string Email)
         {

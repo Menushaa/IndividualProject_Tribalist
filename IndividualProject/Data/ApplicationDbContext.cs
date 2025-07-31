@@ -9,5 +9,8 @@ namespace IndividualProject.Data
 
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<Item> Items { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }

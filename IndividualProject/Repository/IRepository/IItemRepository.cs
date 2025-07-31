@@ -12,5 +12,6 @@ namespace IndividualProject.Repository.IRepository
         public Task<Item> DeleteItem(int id);
         public Task<List<AllitemDto>> GetAllItem();
         public Task<Item> UpdateItem(int id, CreateItemDto itemDto);
+        Task<List<AllitemDto>> FilterItems(ItemFilterDto filter);
     }
 }
