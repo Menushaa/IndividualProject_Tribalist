@@ -6,30 +6,20 @@ namespace IndividualProject.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
-        public EmailService(IConfiguration config)
+        private readonly EmailConfiguration _emailConfig;
+
+        public EmailService(EmailConfiguration emailConfig)
         {
-            _config = config;
+            _emailConfig = emailConfig;
         }
 
         private SmtpClient ConfigureSmtpClient()
         {
-            var smtpHost = _config["EmailConfiguration:Host"];
-            var smtpPort = int.Parse(_config["EmailConfiguration:Port"]);
-            var smtpUsername = _config["EmailConfiguration:Username"];
-            var smtpPassword = _config["EmailConfiguration:Password"];
-
-            if (string.IsNullOrEmpty(smtpHost)||string.IsNullOrEmpty(smtpPort.ToString())||
-                string.IsNullOrEmpty(smtpUsername)||string.IsNullOrEmpty(smtpPassword)) 
+            var smtpClient = new SmtpClient(_emailConfig.Host, _emailConfig.Port)
             {
-                throw new InvalidOperationException("Email configuration settings are not properly set.");
-            }
-
-            var smtpClient = new SmtpClient(smtpHost, smtpPort)
-            {
-                Credentials = new NetworkCredential(smtpUsername, smtpPassword),
+                Credentials = new NetworkCredential(_emailConfig.Username, _emailConfig.Password),
                 EnableSsl = true,
-                UseDefaultCredentials =false
+                UseDefaultCredentials = false
             };
 
             return smtpClient;
@@ -38,11 +28,10 @@ namespace IndividualProject.Services
         public async Task SendEmailAsync(string recipient, string subject, string body)
         {
             var smtpClient = ConfigureSmtpClient();
-            var smtpFrom = _config["EmailConfiguration:From"];
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(smtpFrom),
+                From = new MailAddress(_emailConfig.From),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true
@@ -56,25 +45,25 @@ namespace IndividualProject.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error Sending Email:{ex.Message}");
+                Console.WriteLine($"Error Sending Email: {ex.Message}");
                 throw new InvalidOperationException("Failed to send Email.", ex);
             }
         }
 
         public async Task SendVerificationCodeAsync(string email, string verificationCode)
         {
-            if (string.IsNullOrEmpty(verificationCode)) 
-            {
-                throw new ArgumentNullException(nameof(verificationCode), "Verification Code Cannot be Null or Empty");
-            }
+            if (string.IsNullOrWhiteSpace(verificationCode))
+                throw new ArgumentNullException(nameof(verificationCode), "Verification code cannot be null or empty.");
 
-            if (string.IsNullOrEmpty(email))
-            {
-                throw new ArgumentNullException(nameof(email), "Email Cannot be Null or Empty");
-            }
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentNullException(nameof(email), "Email cannot be null or empty.");
 
             var emailSubject = "Verification Code For Tribalist";
-            var emailMessage = $@"";
+            var emailMessage = $@"
+                <h3>Your verification code</h3>
+                <p>Please use the following code to reset your password:</p>
+                <h2>{verificationCode}</h2>
+                <p>This code will expire shortly. Do not share it with anyone.</p>";
 
             await SendEmailAsync(email, emailSubject, emailMessage);
         }

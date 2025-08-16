@@ -17,6 +17,12 @@ namespace IndividualProject.Common
 
             CreateMap<Review, CreateReviewDto>().ReverseMap();
             CreateMap<Review, ReviewDto>().ReverseMap();
+
+            CreateMap<Customer,CustomerRegistrationDto>().ReverseMap();
+
+            CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<Category,CreateCategoryDto>().ReverseMap();
+            CreateMap<Category, UpdateCategoryDto>().ReverseMap();
         }
     }
 }
