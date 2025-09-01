@@ -209,7 +209,7 @@ export default function VerifyOtp() {
           {/* Back Button */}
           <Button
             startIcon={<BackIcon />}
-            onClick={() => navigate('/forgot-password')}
+            onClick={() => navigate('/forgot')}
             sx={{
               mb: 2,
               color: '#6D4C41',

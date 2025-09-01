@@ -2,20 +2,26 @@
 using IndividualProject.Models;
 using IndividualProject.Repository.IRepository;
 using IndividualProject.Services.IServices;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace IndividualProject.Services
 {
     public class PasswordService : IPasswordService
     {
+        private static string _tempEmail; //temp email
+
         private readonly IEmailService _emailService;
         private readonly ISellerRepository _sellerRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly ApplicationDbContext _context;
 
-        public PasswordService(IEmailService emailService, ISellerRepository sellerRepository, ApplicationDbContext context)
+        public PasswordService(IEmailService emailService, ISellerRepository sellerRepository,ICustomerRepository customerRepository, ApplicationDbContext context)
         {
             _emailService = emailService;
             _sellerRepository = sellerRepository;
+            _customerRepository = customerRepository;
             _context = context;
         }
 
@@ -26,38 +32,47 @@ namespace IndividualProject.Services
 
         public async Task SendVerificationCodeAsync(string email)
         {
-            var seller = _sellerRepository.GetByMail(email);
-            if (seller == null)
-                throw new Exception("Seller not found");
+            _tempEmail = email;
 
-            var code = GenerateOtp();
-            var expiry = DateTime.UtcNow.AddMinutes(5);
+            var seller =  _sellerRepository.GetByMail(email);
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
 
-            var otpRecord = new OtpRecord
+            if (seller == null && customer == null)
+                throw new KeyNotFoundException("Email not found");
+
+            var otp = GenerateOtp();
+
+            if (seller != null)
             {
-                Email = email.ToLower().Trim(),
-                Code = code,
-                ExpiryTime = expiry
-            };
+                seller.Otp = otp;
+                await _sellerRepository.UpdateAsync(seller);
+            }
+            else
+            {
+                customer.Otp = otp;
+                await _customerRepository.UpdateAsync(customer);
+            }
 
-            _context.OtpRecords.Add(otpRecord);
-            await _context.SaveChangesAsync();
-
-            await _emailService.SendVerificationCodeAsync(email, code);
+            await _emailService.SendVerificationCodeAsync(email, otp);
         }
 
-        public async Task<bool> VerifyOtpAsync(string email, string verificationCode)
+
+        public async Task<bool> VerifyOtpAsync(string verificationCode)
         {
-            var otp = await _context.OtpRecords
-                .Where(o => o.Email == email.ToLower().Trim())
-                .OrderByDescending(o => o.ExpiryTime)
-                .FirstOrDefaultAsync();
+            var email = _tempEmail;
 
-            if (otp == null || otp.ExpiryTime < DateTime.UtcNow)
-                return false;
+            var seller = await _sellerRepository.GetSellerByEmailAsync(email);
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
 
-            return otp.Code.Trim() == verificationCode.Trim();
+            if (seller != null && seller.Otp == verificationCode)
+                return true;
+
+            if (customer != null && customer.Otp == verificationCode)
+                return true;
+
+            return false;
         }
+
 
         public async Task SendOtpAsync(string email)
         {
@@ -77,24 +92,39 @@ namespace IndividualProject.Services
             await _emailService.SendVerificationCodeAsync(email, code);
         }
 
-        public async Task<bool> ResetPasswordAsync(string email, string verificationCode, string newPassword)
+        public async Task<bool> ResetPasswordAsync(string newPassword)
         {
-            var isValid = await VerifyOtpAsync(email, verificationCode);
-            if (!isValid) return false;
+            var email = _tempEmail;
 
-            var seller = _sellerRepository.GetByMail(email);
-            if (seller == null) return false;
-
-            PasswordHash ph = new PasswordHash();
-            seller.Password = ph.HashPassword(newPassword);
-
-            await _sellerRepository.UpdateAsync(seller);
-
+            // ✅ Remove used OTP records from DB (keep your existing logic)
             var otpRecords = _context.OtpRecords.Where(o => o.Email == email.ToLower().Trim());
             _context.OtpRecords.RemoveRange(otpRecords);
             await _context.SaveChangesAsync();
 
-            return true;
+            // ✅ Get seller & customer by email
+            var seller = await _sellerRepository.GetSellerByEmailAsync(email);
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+
+            // ✅ Create instance of your existing password hashing class
+            PasswordHash ph = new PasswordHash();
+
+            if (seller != null)
+            {
+                seller.Password = ph.HashPassword(newPassword);
+                seller.Otp = null; // Clear verification code after reset
+                await _sellerRepository.UpdateAsync(seller);
+                return true;
+            }
+            else if (customer != null)
+            {
+                customer.Password = ph.HashPassword(newPassword);
+                customer.Otp = null; // Clear verification code after reset
+                await _customerRepository.UpdateAsync(customer);
+                return true;
+            }
+
+            return false; // If no matching user found
         }
+
     }
 }

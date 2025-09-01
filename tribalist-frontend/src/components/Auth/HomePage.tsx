@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -42,6 +43,7 @@ export default function TribalistHomepage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const navigate = useNavigate();
 
   // Mock data for featured products
   const featuredProducts = [
@@ -231,6 +233,7 @@ export default function TribalistHomepage() {
                 <Button
                   variant="contained"
                   size="large"
+                  onClick={() => navigate('/login')}
                   sx={{
                     bgcolor: '#f39c12',
                     color: 'white',
@@ -243,8 +246,9 @@ export default function TribalistHomepage() {
                   Shop Now
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="outlined" 
                   size="large"
+                  onClick={() => navigate('/register/seller')}
                   sx={{
                     borderColor: 'white',
                     color: 'white',

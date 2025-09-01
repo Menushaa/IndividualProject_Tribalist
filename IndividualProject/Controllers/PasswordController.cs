@@ -26,7 +26,7 @@ namespace IndividualProject.Controllers
         [HttpPost("verify-otp")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequestDto request)
         {
-            var isValid = await _passwordService.VerifyOtpAsync(request.Email, request.VerificationCode);
+            var isValid = await _passwordService.VerifyOtpAsync( request.VerificationCode);
             if (!isValid)
                 return BadRequest("Invalid verification code.");
             return Ok("OTP verified.");
@@ -35,7 +35,7 @@ namespace IndividualProject.Controllers
         [HttpPost("reset")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
         {
-            var result = await _passwordService.ResetPasswordAsync(request.Email, request.VerificationCode, request.NewPassword);
+            var result = await _passwordService.ResetPasswordAsync(request.NewPassword);
             if (!result)
                 return BadRequest("Reset failed. Invalid OTP or email.");
             return Ok("Password reset successful.");

@@ -203,9 +203,9 @@ export default function ResetPassword() {
       sx={{
         minHeight: '100vh',
         background: `linear-gradient(135deg, 
-          ${alpha('#E8F5E8', 0.9)} 0%, 
-          ${alpha('#C8E6C9', 0.7)} 50%, 
-          ${alpha('#A5D6A7', 0.9)} 100%)`,
+          ${alpha('#FFF8E1', 0.9)} 0%, 
+          ${alpha('#F3E5AB', 0.7)} 50%, 
+          ${alpha('#E8D5B7', 0.9)} 100%)`,
         display: 'flex',
         alignItems: 'center',
         py: 4

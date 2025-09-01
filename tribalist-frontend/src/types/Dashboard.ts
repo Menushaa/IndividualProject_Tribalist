@@ -1,9 +1,10 @@
 export interface RecentOrder {
   id: number;
   name: string;
-  totalAmount: number;
+  item: string;
+  date: string;
   status: string;
-  createdAt: string;
+  amount: number;
 }
 
 export interface DashboardData {

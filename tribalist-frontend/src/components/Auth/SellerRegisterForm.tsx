@@ -396,481 +396,489 @@ export const SellerRegisterForm: React.FC<Props> = ({ onRegister }) => {
     onRegister(form);
   };
 
-  return (
-    <Box
+return (
+  <Box
+  display="flex"
+    justifyContent="center"
+    alignItems="center"
+    minHeight="100vh"
+    sx={{
+      background: `linear-gradient(135deg, 
+        ${alpha('#FFF3E0', 0.9)} 0%, 
+        ${alpha('#FFE0B2', 0.7)} 50%, 
+        ${alpha('#FFCC80', 0.9)} 100%)`,
+      py: 4
+    }}
+  >
+
+    <Paper
+      elevation={0}
       sx={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, 
-          ${alpha('#FFF3E0', 0.9)} 0%, 
-          ${alpha('#FFE0B2', 0.7)} 50%, 
-          ${alpha('#FFCC80', 0.9)} 100%)`,
-        py: 4
+        padding: 4,
+        width: "100%",
+        maxWidth: 500,
+        borderRadius: 3,
+        background: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(10px)",
+        border: `1px solid ${alpha("#D84315", 0.1)}`,
+        boxShadow: `0 8px 32px ${alpha("#3E2723", 0.15)}`,
       }}
-    >
-      <Container maxWidth="md">
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 3, sm: 4 },
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            border: `1px solid ${alpha('#D84315', 0.1)}`,
-            boxShadow: `0 8px 32px ${alpha('#3E2723', 0.1)}`
-          }}
-        >
-          {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                bgcolor: alpha('#D84315', 0.1),
-                mb: 2
-              }}
-            >
-              <StoreIcon sx={{ fontSize: 32, color: '#D84315' }} />
-            </Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                color: '#3E2723',
-                mb: 1
-              }}
-            >
-              Become an Artisan
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: '#6D4C41', mb: 2 }}
-            >
-              Share your craft with the world and build your business
-            </Typography>
-            
-            {/* Progress Indicator */}
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Registration Progress
-                </Typography>
-                <Chip 
-                  size="small" 
-                  label={`${Math.round(getCompletedFields())}%`}
-                  sx={{ 
-                    bgcolor: alpha('#D84315', 0.1),
-                    color: '#D84315'
-                  }}
-                />
-              </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={getCompletedFields()} 
-                sx={{ 
-                  height: 6, 
-                  borderRadius: 3,
+      >
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              bgcolor: alpha('#D84315', 0.1),
+              mb: 2
+            }}
+          >
+            <StoreIcon sx={{ fontSize: 32, color: '#D84315' }} />
+          </Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: '#3E2723',
+              mb: 1
+            }}
+          >
+            Become an Artisan
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ color: '#6D4C41', mb: 2 }}
+          >
+            Share your craft with the world and build your business
+          </Typography>
+
+          {/* Progress Indicator */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                Registration Progress
+              </Typography>
+              <Chip
+                size="small"
+                label={`${Math.round(getCompletedFields())}%`}
+                sx={{
                   bgcolor: alpha('#D84315', 0.1),
-                  '& .MuiLinearProgress-bar': {
-                    bgcolor: '#D84315'
+                  color: '#D84315'
+                }}
+              />
+            </Box>
+            <LinearProgress
+              variant="determinate"
+              value={getCompletedFields()}
+              sx={{
+                height: 6,
+                borderRadius: 3,
+                bgcolor: alpha('#D84315', 0.1),
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: '#D84315'
+                }
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* Registration Form */}
+        <Box component="form" onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Profile Image Upload */}
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: '#3E2723',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 2
+                }}
+              >
+                <ImageIcon  sx={{ mr: 1, color: '#D84315' }} />
+                Profile Image
+              </Typography>
+
+              <Card
+                sx={{
+                  width: '100%',
+                  height: 150,
+                  border: `2px dashed ${alpha('#D84315', 0.3)}`,
+                  borderRadius: 2,
+                  bgcolor: alpha('#D84315', 0.02),
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    borderColor: '#D84315',
+                    bgcolor: alpha('#D84315', 0.05)
+                  }
+                }}
+              >
+                <CardContent sx={{ textAlign: 'center', py: 1 }}>
+                  {imagePreview ? (
+                    <Box>
+                      <Avatar
+                        src={imagePreview}
+                        sx={{
+                          width: 100,
+                          height: 100,
+                          mx: 'auto',
+                          mb: 1,
+                          border: `3px solid ${alpha('#D84315', 0.2)}`
+                        }}
+                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        <CheckIcon sx={{ color: '#4caf50', fontSize: 15 }} />
+                        <Typography color="success.main" variant="body2">
+                          Image uploaded successfully
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Box>
+                      {loading ? (
+                        <Box>
+                          <CircularProgress
+                            variant="determinate"
+                            value={uploadProgress}
+                            sx={{ mb: 2, color: '#D84315' }}
+                          />
+                          <Typography color="text.secondary">
+                            Uploading... {uploadProgress}%
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <UploadIcon sx={{ fontSize: 30, color: alpha('#D84315', 0.5), mb: 2 }} />
+                          <Typography variant="h6" color="text.secondary" gutterBottom>
+                            Upload Your Profile Image
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            Click to select or drag and drop an image
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Supports JPG, PNG up to 5MB
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      opacity: 0,
+                      cursor: 'pointer'
+                    }}
+                    disabled={loading}
+                  />
+                </CardContent>
+              </Card>
+
+              {submitted && errors.profileUrl && (
+                <Alert severity="error" sx={{ mt: 1 }}>
+                  {errors.profileUrl}
+                </Alert>
+              )}
+            </Box>
+
+            {/* Business Information */}
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: '#3E2723',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 2
+                }}
+              >
+                <PersonIcon sx={{ mr: 1, color: '#D84315' }} />
+                Business Information
+              </Typography>
+            </Box>
+
+            <Box>
+              <TextField
+                name="name"
+                label="Business/Artisan Name"
+                fullWidth
+                value={form.name}
+                onChange={handleChange}
+                error={submitted && !!errors.name}
+                helperText={submitted && errors.name}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon sx={{ color: '#6D4C41' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#D84315'
                   }
                 }}
               />
             </Box>
-          </Box>
 
-          {/* Registration Form */}
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              {/* Profile Image Upload */}
-              <Grid>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#3E2723', 
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2
-                  }}
-                >
-                  <ImageIcon sx={{ mr: 1, color: '#D84315' }} />
-                  Profile Image
-                </Typography>
-                
-                <Card 
-                  sx={{ 
-                    border: `2px dashed ${alpha('#D84315', 0.3)}`,
+            <Box>
+              <TextField
+                name="email"
+                label="Email Address"
+                type="email"
+                fullWidth
+                value={form.email}
+                onChange={handleChange}
+                error={submitted && !!errors.email}
+                helperText={submitted && errors.email}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon sx={{ color: '#6D4C41' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
-                    bgcolor: alpha('#D84315', 0.02),
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      borderColor: '#D84315',
-                      bgcolor: alpha('#D84315', 0.05)
-                    }
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                    {imagePreview ? (
-                      <Box>
-                        <Avatar
-                          src={imagePreview}
-                          sx={{ 
-                            width: 100, 
-                            height: 100, 
-                            mx: 'auto', 
-                            mb: 2,
-                            border: `3px solid ${alpha('#D84315', 0.2)}`
-                          }}
-                        />
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                          <CheckIcon sx={{ color: '#4caf50', fontSize: 20 }} />
-                          <Typography color="success.main" variant="body2">
-                            Image uploaded successfully
-                          </Typography>
-                        </Box>
-                      </Box>
-                    ) : (
-                      <Box>
-                        {loading ? (
-                          <Box>
-                            <CircularProgress 
-                              variant="determinate" 
-                              value={uploadProgress}
-                              sx={{ mb: 2, color: '#D84315' }}
-                            />
-                            <Typography color="text.secondary">
-                              Uploading... {uploadProgress}%
-                            </Typography>
-                          </Box>
-                        ) : (
-                          <Box>
-                            <UploadIcon sx={{ fontSize: 48, color: alpha('#D84315', 0.5), mb: 2 }} />
-                            <Typography variant="h6" color="text.secondary" gutterBottom>
-                              Upload Your Profile Image
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                              Click to select or drag and drop an image
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              Supports JPG, PNG up to 5MB
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                    )}
-                    
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0,
-                        cursor: 'pointer'
-                      }}
-                      disabled={loading}
-                    />
-                  </CardContent>
-                </Card>
-                
-                {submitted && errors.profileUrl && (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    {errors.profileUrl}
-                  </Alert>
-                )}
-              </Grid>
-
-              {/* Business Information */}
-              <Grid>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#3E2723', 
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2
-                  }}
-                >
-                  <PersonIcon sx={{ mr: 1, color: '#D84315' }} />
-                  Business Information
-                </Typography>
-              </Grid>
-
-              <Grid>
-                <TextField
-                  name="name"
-                  label="Business/Artisan Name"
-                  fullWidth
-                  value={form.name}
-                  onChange={handleChange}
-                  error={submitted && !!errors.name}
-                  helperText={submitted && errors.name}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      }
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#D84315'
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     }
-                  }}
-                />
-              </Grid>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#D84315'
+                  }
+                }}
+              />
+            </Box>
 
-              <Grid>
-                <TextField
-                  name="email"
-                  label="Email Address"
-                  type="email"
-                  fullWidth
-                  value={form.email}
-                  onChange={handleChange}
-                  error={submitted && !!errors.email}
-                  helperText={submitted && errors.email}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      }
+            <Box>
+              <TextField
+                name="password"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                fullWidth
+                value={form.password}
+                onChange={handleChange}
+                error={submitted && !!errors.password}
+                helperText={submitted && errors.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon sx={{ color: '#6D4C41' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: '#6D4C41' }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#D84315'
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     }
-                  }}
-                />
-              </Grid>
-
-              <Grid>
-                <TextField
-                  name="password"
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  fullWidth
-                  value={form.password}
-                  onChange={handleChange}
-                  error={submitted && !!errors.password}
-                  helperText={submitted && errors.password}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: '#6D4C41' }}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#D84315'
-                    }
-                  }}
-                />
-                {form.password && (
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Password Strength
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: getPasswordStrengthColor(getPasswordStrength(form.password)) }}>
-                        {getPasswordStrength(form.password) < 50 ? 'Weak' : 
-                         getPasswordStrength(form.password) < 75 ? 'Medium' : 'Strong'}
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={getPasswordStrength(form.password)}
-                      sx={{
-                        height: 4,
-                        borderRadius: 2,
-                        bgcolor: alpha('#ccc', 0.3),
-                        '& .MuiLinearProgress-bar': {
-                          bgcolor: getPasswordStrengthColor(getPasswordStrength(form.password))
-                        }
-                      }}
-                    />
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#D84315'
+                  }
+                }}
+              />
+              {form.password && (
+                <Box sx={{ mt: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Password Strength
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: getPasswordStrengthColor(getPasswordStrength(form.password)) }}>
+                      {getPasswordStrength(form.password) < 50 ? 'Weak' :
+                        getPasswordStrength(form.password) < 75 ? 'Medium' : 'Strong'}
+                    </Typography>
                   </Box>
-                )}
-              </Grid>
-
-              {/* Contact Information */}
-              <Grid>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#3E2723', 
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2,
-                    mt: 2
-                  }}
-                >
-                  <PhoneIcon sx={{ mr: 1, color: '#D84315' }} />
-                  Contact Information
-                </Typography>
-              </Grid>
-
-              <Grid>
-                <TextField
-                  name="address"
-                  label="Business Address"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  value={form.address}
-                  onChange={handleChange}
-                  error={submitted && !!errors.address}
-                  helperText={submitted && errors.address}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <HomeIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
+                  <LinearProgress
+                    variant="determinate"
+                    value={getPasswordStrength(form.password)}
+                    sx={{
+                      height: 4,
                       borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
+                      bgcolor: alpha('#ccc', 0.3),
+                      '& .MuiLinearProgress-bar': {
+                        bgcolor: getPasswordStrengthColor(getPasswordStrength(form.password))
                       }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#D84315'
-                    }
-                  }}
-                />
-              </Grid>
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
 
-              <Grid>
-                <TextField
-                  name="phoneNumber"
-                  label="Phone Number"
-                  fullWidth
-                  value={form.phoneNumber}
-                  onChange={handleChange}
-                  error={submitted && !!errors.phoneNumber}
-                  helperText={submitted && errors.phoneNumber}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PhoneIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#D84315'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#D84315'
-                    }
-                  }}
-                />
-              </Grid>
+            {/* Contact Information */}
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: '#3E2723',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 2,
+                  mt: 2
+                }}
+              >
+                <PhoneIcon sx={{ mr: 1, color: '#D84315' }} />
+                Contact Information
+              </Typography>
+            </Box>
 
-              {/* Submit Button */}
-              <Grid>
-                <Button
-                  variant="contained"
-                  type="submit"
-                  fullWidth
-                  size="large"
-                  disabled={loading}
-                  sx={{
-                    mt: 2,
-                    py: 1.5,
+            <Box>
+              <TextField
+                name="address"
+                label="Business Address"
+                fullWidth
+                multiline
+                rows={2}
+                value={form.address}
+                onChange={handleChange}
+                error={submitted && !!errors.address}
+                helperText={submitted && errors.address}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <HomeIcon sx={{ color: '#6D4C41' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
-                    bgcolor: '#D84315',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    textTransform: 'none',
-                    boxShadow: `0 4px 12px ${alpha('#D84315', 0.3)}`,
-                    '&:hover': {
-                      bgcolor: '#BF360C',
-                      boxShadow: `0 6px 16px ${alpha('#D84315', 0.4)}`,
-                      transform: 'translateY(-1px)'
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     },
-                    '&:disabled': {
-                      bgcolor: alpha('#D84315', 0.5),
-                      color: 'white'
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
                     }
-                  }}
-                >
-                  {loading ? 'Creating Account...' : 'Create Artisan Account'}
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#D84315'
+                  }
+                }}
+              />
+            </Box>
 
-          {/* Footer */}
-          <Box sx={{ textAlign: 'center', mt: 3, pt: 3, borderTop: `1px solid ${alpha('#6D4C41', 0.1)}` }}>
-            <Typography variant="body2" color="text.secondary">
-              By registering as an artisan, you agree to our Terms of Service and Privacy Policy
-            </Typography>
+            <Box>
+              <TextField
+                name="phoneNumber"
+                label="Phone Number"
+                fullWidth
+                value={form.phoneNumber}
+                onChange={handleChange}
+                error={submitted && !!errors.phoneNumber}
+                helperText={submitted && errors.phoneNumber}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon sx={{ color: '#6D4C41' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#D84315'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#D84315'
+                  }
+                }}
+              />
+            </Box>
+
+            {/* Submit Button */}
+            <Box>
+              <Button
+                variant="contained"
+                type="submit"
+                fullWidth
+                size="large"
+                disabled={loading}
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  borderRadius: 2,
+                  bgcolor: '#D84315',
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  textTransform: 'none',
+                  boxShadow: `0 4px 12px ${alpha('#D84315', 0.3)}`,
+                  '&:hover': {
+                    bgcolor: '#BF360C',
+                    boxShadow: `0 6px 16px ${alpha('#D84315', 0.4)}`,
+                    transform: 'translateY(-1px)'
+                  },
+                  '&:disabled': {
+                    bgcolor: alpha('#D84315', 0.5),
+                    color: 'white'
+                  }
+                }}
+              >
+                {loading ? 'Creating Account...' : 'Create Artisan Account'}
+              </Button>
+            </Box>
           </Box>
-        </Paper>
-      </Container>
-    </Box>
-  );
+        </Box>
+
+        {/* Footer */}
+        <Box sx={{ textAlign: 'center', mt: 3, pt: 3, borderTop: `1px solid ${alpha('#6D4C41', 0.1)}` }}>
+          <Typography variant="body2" color="text.secondary">
+            By registering as an artisan, you agree to our Terms of Service and Privacy Policy
+          </Typography>
+        </Box>
+      </Paper>
+
+  </Box>
+);
+
 };

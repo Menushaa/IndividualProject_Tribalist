@@ -9,7 +9,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyOtp from './pages/VerifyOtp';
 import ResetPassword from './pages/ResetPassword';
 import TribalistHomepage from './components/Auth/HomePage';
-import SellerDashboard from './pages/SellerDashboard';
+import SellerDashboard from './pages/SellerDashboardPage';
+import CustomerRegisterForm from './pages/RegisterCustomer';
+import SellerDashboardPage from './pages/SellerDashboardPage';
 
 function App() {
   return (
@@ -20,12 +22,12 @@ function App() {
           <Route path="" element={<TribalistHomepage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegisterRoleSelect />} />
-          <Route path="/register/customer" element={<RegisterCustomer />} />
+          <Route path="/register/customer" element={<CustomerRegisterForm />} />
           <Route path="/register/seller" element={<RegisterSeller />} />
           <Route path="/forgot" element={<ForgotPassword />} />
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/reset" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<SellerDashboard/>} />
+          <Route path="/dashboard" element={<SellerDashboardPage/>} />
         </Routes>
       {/* </Box> */}
     </BrowserRouter>

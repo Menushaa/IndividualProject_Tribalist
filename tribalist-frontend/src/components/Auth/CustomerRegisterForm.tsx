@@ -176,9 +176,7 @@
 //       </Button>
 //     </Box>
 //   );
-// };
-import React, { useState } from 'react';
-import { Customer } from '../../types/User';
+// };import React from "react";
 import {
   Box,
   TextField,
@@ -186,548 +184,414 @@ import {
   Typography,
   MenuItem,
   Paper,
-  Container,
   InputAdornment,
-  IconButton,
-  Grid,
-  Stepper,
-  Step,
-  StepLabel,
   alpha,
-  LinearProgress,
-  Chip
-} from '@mui/material';
+} from "@mui/material";
 import {
   Person as PersonIcon,
   Email as EmailIcon,
   Lock as LockIcon,
   Home as HomeIcon,
   Phone as PhoneIcon,
-  LocationCity as CityIcon,
-  Visibility,
-  VisibilityOff,
-  AccountCircle as AccountIcon
+  LocationCity as LocationCityIcon
 } from '@mui/icons-material';
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface Props {
-  onRegister: (data: Customer) => void;
+// Zod Validation Schema
+const customerRegisterSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(20, "Password must be at most 20 characters"),
+  confirmPassword: z.string(),
+  phone: z
+    .string()
+    .min(10, "Phone must be at least 10 digits")
+    .max(15, "Phone number is too long"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  city: z.string().min(2, "City is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+// Type Inference from Schema
+type CustomerRegisterFormData = z.infer<typeof customerRegisterSchema>;
+
+interface CustomerRegisterFormProps {
+  onSubmit: (data: CustomerRegisterFormData) => void;
 }
 
-export const CustomerRegisterForm: React.FC<Props> = ({ onRegister }) => {
-  const [form, setForm] = useState<Customer>({
-    name: '',
-    email: '',
-    password: '',
-    address: '',
-    phone: '',
-    city: '',
-    role: 'Customer',
+const CustomerRegisterForm: React.FC<CustomerRegisterFormProps> = ({ onSubmit }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<CustomerRegisterFormData>({
+    resolver: zodResolver(customerRegisterSchema),
+    mode: "onBlur",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
-  const [errors, setErrors] = useState<Partial<Record<keyof Customer, string>>>({});
-  const [submitted, setSubmitted] = useState(false);
-
-  const cities = [
-    'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
-    'Galle', 'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar',
-    'Vavuniya', 'Mullaitivu', 'Trincomalee', 'Batticaloa', 'Ampara',
-    'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 'Badulla',
-    'Monaragala', 'Ratnapura', 'Kegalle',
-  ];
-
-  const steps = ['Personal Info', 'Contact Details', 'Location'];
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-
-    // Clear error as user types
-    if (errors[name as keyof Customer]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validate = () => {
-    const newErrors: Partial<Record<keyof Customer, string>> = {};
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8}$/;
-
-    if (!form.name || !form.name.trim()) newErrors.name = 'Name is required';
-
-    if (!form.email || !form.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!form.password) {
-      newErrors.password = 'Password is required';
-    } else if (!strongPasswordRegex.test(form.password)) {
-      newErrors.password = 'Password must be exactly 8 characters with uppercase, lowercase, number, and special character';
-    }
-
-    if (!form.address || !form.address.trim()) {
-      newErrors.address = 'Address is required';
-    }
-    if (!form.phone || !form.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\+?[\d\s-()]{10,}$/.test(form.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
-    }
-    if (!form.city || !form.city.trim()) {
-      newErrors.city = 'City selection is required';
-    }
-
-    return newErrors;
-  };
-
-  const getPasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (/[a-z]/.test(password)) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 25;
-    if (/\d/.test(password)) strength += 25;
-    if (/[@$!%*?&]/.test(password)) strength += 25;
-    return Math.min(strength, 100);
-  };
-
-  const getPasswordStrengthColor = (strength: number) => {
-    if (strength < 50) return '#f44336';
-    if (strength < 75) return '#ff9800';
-    return '#4caf50';
-  };
-
-  const getCompletedFields = () => {
-    let completed = 0;
-    const totalFields = 6;
-    if (form.name.trim()) completed++;
-    if (form.email.trim()) completed++;
-    if (form.password.trim()) completed++;
-    if (form.address.trim()) completed++;
-    if (form.phone.trim()) completed++;
-    if (form.city.trim()) completed++;
-    return (completed / totalFields) * 100;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    onRegister(form);
-  };
-
-  return (
-    <Box
+return (
+  <Box
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    minHeight="100vh"
+    sx={{
+      background: `linear-gradient(135deg, 
+        ${alpha("#FFF3E0", 0.9)} 0%, 
+        ${alpha("#FFE0B2", 0.7)} 50%, 
+        ${alpha("#FFCC80", 0.9)} 100%)`,
+      py: 4,
+    }}
+  >
+    <Paper
+      elevation={0}
       sx={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, 
-          ${alpha('#FFF8E1', 0.9)} 0%, 
-          ${alpha('#F3E5AB', 0.7)} 50%, 
-          ${alpha('#E8D5B7', 0.9)} 100%)`,
-        py: 4
+        padding: 4,
+        width: "100%",
+        maxWidth: 500,
+        borderRadius: 3,
+        background: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(10px)",
+        border: `1px solid ${alpha("#D84315", 0.1)}`,
+        boxShadow: `0 8px 32px ${alpha("#3E2723", 0.15)}`,
       }}
     >
-      <Container maxWidth="md">
-        <Paper
-          elevation={0}
+      {/* Header */}
+      <Box sx={{ textAlign: "center", mb: 3 }}>
+        <Box
           sx={{
-            p: { xs: 3, sm: 4 },
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            border: `1px solid ${alpha('#2E7D32', 0.1)}`,
-            boxShadow: `0 8px 32px ${alpha('#3E2723', 0.1)}`
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            bgcolor: alpha("#D84315", 0.1),
+            mb: 2,
           }}
         >
-          {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                bgcolor: alpha('#2E7D32', 0.1),
-                mb: 2
-              }}
-            >
-              <AccountIcon sx={{ fontSize: 32, color: '#2E7D32' }} />
-            </Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                color: '#3E2723',
-                mb: 1
-              }}
-            >
-              Join as Customer
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: '#6D4C41', mb: 2 }}
-            >
-              Discover amazing handicrafts from talented artisans
-            </Typography>
-            
-            {/* Progress Indicator */}
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Registration Progress
-                </Typography>
-                <Chip 
-                  size="small" 
-                  label={`${Math.round(getCompletedFields())}%`}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={getCompletedFields()} 
-                sx={{ 
-                  height: 6, 
-                  borderRadius: 3,
-                  bgcolor: alpha('#2E7D32', 0.1),
-                  '& .MuiLinearProgress-bar': {
-                    bgcolor: '#2E7D32'
-                  }
-                }}
-              />
-            </Box>
-          </Box>
+          <PersonIcon sx={{ fontSize: 32, color: "#D84315" }} />
+        </Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: "#3E2723",
+            mb: 1,
+          }}
+        >
+          Customer Registration
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#6D4C41" }}
+        >
+          Join our platform and start exploring unique handicrafts!
+        </Typography>
+      </Box>
 
-          {/* Registration Form */}
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              {/* Personal Information */}
-              <Grid>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#3E2723', 
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2
-                  }}
-                >
-                  <PersonIcon sx={{ mr: 1, color: '#2E7D32' }} />
-                  Personal Information
-                </Typography>
-              </Grid>
+      {/* Registration Form */}
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      >
+        {/* Name */}
+        <TextField
+          label="Full Name"
+          fullWidth
+          {...register("name")}
+          error={!!errors.name}
+          helperText={errors.name?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <PersonIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              <Grid>
-                <TextField
-                  name="name"
-                  label="Full Name"
-                  fullWidth
-                  value={form.name}
-                  onChange={handleChange}
-                  error={submitted && !!errors.name}
-                  helperText={submitted && errors.name}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                />
-              </Grid>
+        {/* Email */}
+        <TextField
+          label="Email Address"
+          fullWidth
+          {...register("email")}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <EmailIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              <Grid>
-                <TextField
-                  name="email"
-                  label="Email Address"
-                  type="email"
-                  fullWidth
-                  value={form.email}
-                  onChange={handleChange}
-                  error={submitted && !!errors.email}
-                  helperText={submitted && errors.email}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                />
-              </Grid>
+        {/* Password */}
+        <TextField
+          label="Password"
+          type="password"
+          fullWidth
+          {...register("password")}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              <Grid>
-                <TextField
-                  name="password"
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  fullWidth
-                  value={form.password}
-                  onChange={handleChange}
-                  error={submitted && !!errors.password}
-                  helperText={submitted && errors.password}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: '#6D4C41' }}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                />
-                {form.password && (
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Password Strength
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: getPasswordStrengthColor(getPasswordStrength(form.password)) }}>
-                        {getPasswordStrength(form.password) < 50 ? 'Weak' : 
-                         getPasswordStrength(form.password) < 75 ? 'Medium' : 'Strong'}
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={getPasswordStrength(form.password)}
-                      sx={{
-                        height: 4,
-                        borderRadius: 2,
-                        bgcolor: alpha('#ccc', 0.3),
-                        '& .MuiLinearProgress-bar': {
-                          bgcolor: getPasswordStrengthColor(getPasswordStrength(form.password))
-                        }
-                      }}
-                    />
-                  </Box>
-                )}
-              </Grid>
+        {/* Confirm Password */}
+        <TextField
+          label="Confirm Password"
+          type="password"
+          fullWidth
+          {...register("confirmPassword")}
+          error={!!errors.confirmPassword}
+          helperText={errors.confirmPassword?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              {/* Contact Information */}
-              <Grid>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#3E2723', 
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2,
-                    mt: 2
-                  }}
-                >
-                  <PhoneIcon sx={{ mr: 1, color: '#2E7D32' }} />
-                  Contact & Location
-                </Typography>
-              </Grid>
+        {/* Phone */}
+        <TextField
+          label="Phone Number"
+          fullWidth
+          {...register("phone")}
+          error={!!errors.phone}
+          helperText={errors.phone?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <PhoneIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              <Grid>
-                <TextField
-                  name="address"
-                  label="Address"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  value={form.address}
-                  onChange={handleChange}
-                  error={submitted && !!errors.address}
-                  helperText={submitted && errors.address}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <HomeIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                />
-              </Grid>
+        {/* Address */}
+        <TextField
+          label="Address"
+          fullWidth
+          {...register("address")}
+          error={!!errors.address}
+          helperText={errors.address?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <HomeIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        />
 
-              <Grid>
-                <TextField
-                  name="phone"
-                  label="Phone Number"
-                  fullWidth
-                  value={form.phone}
-                  onChange={handleChange}
-                  error={submitted && !!errors.phone}
-                  helperText={submitted && errors.phone}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PhoneIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                />
-              </Grid>
+        {/* City */}
+        <TextField
+          label="City"
+          select
+          fullWidth
+          {...register("city")}
+          error={!!errors.city}
+          helperText={errors.city?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LocationCityIcon sx={{ color: "#6D4C41" }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#D84315",
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#D84315",
+            },
+          }}
+        >
+        <MenuItem value="Colombo">Colombo</MenuItem>
+        <MenuItem value="Gampaha">Gampaha</MenuItem>
+        <MenuItem value="Kalutara">Kalutara</MenuItem>
+        <MenuItem value="Kandy">Kandy</MenuItem>
+        <MenuItem value="Matale">Matale</MenuItem>
+        <MenuItem value="Nuwara Eliya">Nuwara Eliya</MenuItem>
+        <MenuItem value="Galle">Galle</MenuItem>
+        <MenuItem value="Matara">Matara</MenuItem>
+        <MenuItem value="Hambantota">Hambantota</MenuItem>
+        <MenuItem value="Jaffna">Jaffna</MenuItem>
+        <MenuItem value="Kilinochchi">Kilinochchi</MenuItem>
+        <MenuItem value="Mannar">Mannar</MenuItem>
+        <MenuItem value="Vavuniya">Vavuniya</MenuItem>
+        <MenuItem value="Mullaitivu">Mullaitivu</MenuItem>
+        <MenuItem value="Batticaloa">Batticaloa</MenuItem>
+        <MenuItem value="Ampara">Ampara</MenuItem>
+        <MenuItem value="Trincomalee">Trincomalee</MenuItem>
+        <MenuItem value="Kurunegala">Kurunegala</MenuItem>
+        <MenuItem value="Puttalam">Puttalam</MenuItem>
+        <MenuItem value="Anuradhapura">Anuradhapura</MenuItem>
+        <MenuItem value="Polonnaruwa">Polonnaruwa</MenuItem>
+        <MenuItem value="Badulla">Badulla</MenuItem>
+        <MenuItem value="Monaragala">Monaragala</MenuItem>
+        <MenuItem value="Ratnapura">Ratnapura</MenuItem>
+        <MenuItem value="Kegalle">Kegalle</MenuItem>
 
-              <Grid>
-                <TextField
-                  name="city"
-                  label="City"
-                  select
-                  fullWidth
-                  value={form.city}
-                  onChange={handleChange}
-                  error={submitted && !!errors.city}
-                  helperText={submitted && errors.city}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CityIcon sx={{ color: '#6D4C41' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#2E7D32'
-                      }
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#2E7D32'
-                    }
-                  }}
-                >
-                  {cities.map((city) => (
-                    <MenuItem key={city} value={city}>
-                      {city}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
+        </TextField>
 
-              {/* Submit Button */}
-              <Grid>
-                <Button
-                  variant="contained"
-                  type="submit"
-                  fullWidth
-                  size="large"
-                  sx={{
-                    mt: 2,
-                    py: 1.5,
-                    borderRadius: 2,
-                    bgcolor: '#2E7D32',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    textTransform: 'none',
-                    boxShadow: `0 4px 12px ${alpha('#2E7D32', 0.3)}`,
-                    '&:hover': {
-                      bgcolor: '#1B5E20',
-                      boxShadow: `0 6px 16px ${alpha('#2E7D32', 0.4)}`,
-                      transform: 'translateY(-1px)'
-                    }
-                  }}
-                >
-                  Create Customer Account
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          size="large"
+          disabled={isSubmitting}
+          sx={{
+            mt: 2,
+            py: 1.5,
+            borderRadius: 2,
+            bgcolor: "#D84315",
+            fontWeight: 600,
+            fontSize: "1.1rem",
+            textTransform: "none",
+            boxShadow: `0 4px 12px ${alpha("#D84315", 0.3)}`,
+            "&:hover": {
+              bgcolor: "#BF360C",
+              boxShadow: `0 6px 16px ${alpha("#D84315", 0.4)}`,
+              transform: "translateY(-1px)",
+            },
+            "&:disabled": {
+              bgcolor: alpha("#D84315", 0.5),
+              color: "white",
+            },
+          }}
+        >
+          {isSubmitting ? "Registering..." : "Register"}
+        </Button>
+      </Box>
 
-          {/* Footer */}
-          <Box sx={{ textAlign: 'center', mt: 3, pt: 3, borderTop: `1px solid ${alpha('#6D4C41', 0.1)}` }}>
-            <Typography variant="body2" color="text.secondary">
-              By registering, you agree to our Terms of Service and Privacy Policy
-            </Typography>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
-  );
+      {/* Footer */}
+      <Box
+        sx={{
+          textAlign: "center",
+          mt: 3,
+          pt: 3,
+          borderTop: `1px solid ${alpha("#6D4C41", 0.1)}`,
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          By registering, you agree to our Terms of Service and Privacy Policy.
+        </Typography>
+      </Box>
+    </Paper>
+  </Box>
+);
+
 };
+
+export default CustomerRegisterForm;

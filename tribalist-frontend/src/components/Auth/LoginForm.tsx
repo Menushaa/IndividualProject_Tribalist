@@ -84,6 +84,7 @@
 // };
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -108,7 +109,8 @@ import {
   Lock as LockIcon,
   Visibility,
   VisibilityOff,
-  Login as LoginIcon
+  Login as LoginIcon,
+  Home as HomeIcon
 } from '@mui/icons-material';
 
 interface LoginFormProps {
@@ -127,6 +129,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const navigate = useNavigate();
   
   const theme = useTheme();
 
@@ -135,40 +138,46 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const newErrors: { email?: string; password?: string } = {};
+
+  if (!email.trim()) {
+    newErrors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    newErrors.email = 'Please enter a valid email';
+  }
+
+  if (!password.trim()) {
+    newErrors.password = 'Password is required';
+  } else if (password.length < 6) {
+    newErrors.password = 'Password must be at least 6 characters';
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0; // valid if no errors
+};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onLogin({ role, email, password });
+      navigate('/dashboard')
     }
   };
 
   const handleInputChange = (field: 'email' | 'password', value: string) => {
     if (field === 'email') {
       setEmail(value);
-      if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+      if (errors.email) {
+        setErrors(prev => ({ ...prev, email: undefined })); 
+      }
     } else {
       setPassword(value);
-      if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+      if (errors.password) {
+        setErrors(prev => ({ ...prev, password: undefined })); 
+      }
     }
   };
+
 
   return (
     <Box
@@ -183,6 +192,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         py: 4
       }}
     >
+      <Button
+        startIcon={<HomeIcon />}
+        onClick={() => navigate('/')}  
+          sx={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            bgcolor: 'transparent',
+            color: '#6D4C41',
+            '&:hover': {
+              bgcolor: alpha('#D84315', 0.1),
+            },
+          }}
+        >  
+        HOME  
+      </Button>
       <Container maxWidth="sm">
         <Paper
           elevation={0}
