@@ -8,5 +8,8 @@ namespace IndividualProject.Repository.IRepository
         Task<Customer> GetCustomerByEmailAsync(string email);
         Task<bool> LoginCustomerAsync(string email, string password);
         Task<Customer> GetByIdAsync(int id);
+        Task UpdateAsync(Customer cusomer);
+
+
     }
 }

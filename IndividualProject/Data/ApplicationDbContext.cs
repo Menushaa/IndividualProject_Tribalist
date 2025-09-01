@@ -12,5 +12,6 @@ namespace IndividualProject.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<OtpRecord> OtpRecords { get; set; }
     }
 }

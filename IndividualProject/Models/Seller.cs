@@ -16,6 +16,8 @@ namespace IndividualProject.Models
         public string phoneNumber { get; set; }
         public string? ProfileUrl { get; set; }
         public string Role { get; set; }
+        public string? Otp { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public bool isSuspended { get; set; }
 

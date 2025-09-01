@@ -65,8 +65,13 @@ namespace IndividualProject.Repository
 
         public Seller GetByMail(string Email)
         {
-            return _DbContext.Sellers.FirstOrDefault(e => e.Email == Email);
+            return _DbContext.Sellers.FirstOrDefault(e => e.Email.ToLower() == Email.ToLower().Trim());
         }
+        public async Task<Seller> GetSellerByEmailAsync(string email)
+        {
+            return await _DbContext.Sellers.FirstOrDefaultAsync(c => c.Email == email);
+        }
+
 
         public Seller GetById(int id)
         {

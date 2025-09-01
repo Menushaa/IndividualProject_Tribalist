@@ -39,5 +39,10 @@ namespace IndividualProject.Repository
         {
             return await _context.Customers.FindAsync(id);
         }
+        public async Task UpdateAsync(Customer customer)
+        {
+            _context.Customers.Update(customer);
+            await _context.SaveChangesAsync();
+        }
     }
 }

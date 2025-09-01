@@ -23,10 +23,16 @@ namespace IndividualProject.Repository
 
         public async Task<bool> CreateItem(int SellerId, CreateItemDto itemDto)
         {
-            var seller = await _DbContext.Items.FindAsync(SellerId);
+            var seller = await _DbContext.Sellers.FindAsync(SellerId);
             if (seller == null)
             {
-                return false; // Tutor not found
+                return false; // Seller not found
+            }
+
+            var categoryExists = await _DbContext.Categories.AnyAsync(c => c.Id == itemDto.CategoryId);
+            if (!categoryExists)
+            {
+                return false; // Category not found
             }
 
             var item = new Item
@@ -36,6 +42,7 @@ namespace IndividualProject.Repository
                 CoverImage = itemDto.CoverImage,
                 Price = itemDto.Price,
                 SellerId = SellerId,
+                CategoryId = itemDto.CategoryId,
             };
 
             _DbContext.Items.Add(item);
